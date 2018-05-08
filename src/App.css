@@ -2,14 +2,9 @@
   text-align: center;
 }
 
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 80px;
-}
-
 .App-header {
   background-color: #222;
-  height: 150px;
+  height: 60px;
   padding: 20px;
   color: white;
 }
@@ -20,6 +15,20 @@
 
 .App-intro {
   font-size: large;
+}
+
+.fetch-btn {
+  background: none;
+  color: #222;
+  width: 120px;
+  height: 40px;
+  border: solid 1px #222;
+  margin: 12px auto;
+  cursor: pointer;
+}
+.fetch-btn:hover{
+  background: rgb(0, 182, 228);
+  color: white;
 }
 
 @keyframes App-logo-spin {
