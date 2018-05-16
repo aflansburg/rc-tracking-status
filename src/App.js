@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
-import fedexBatchTrack from './helpers/fedexBatchTracking';
+import getTracking from './helpers/getTracking';
 import testTracking from './helpers/data/sample_tracking.json';
 
 class App extends Component {
@@ -16,17 +16,15 @@ class App extends Component {
   }
 
   fetchTracking(event){
-    fedexBatchTrack(this.state.trackingNo)
+    getTracking.get()
       .then(data=>{
-        this.setState = {results: data}
+        console.log(`data returned: ${data}`);
+        this.setState({results: JSON.parse(data)});
+        console.log('state shouldl be updated');
       })
+      .catch(err=>{console.log(err);})
   }
   
-  componentDidMount(){
-
-
-  }
-
   render() {
     return (
       <div className="App">
@@ -43,8 +41,12 @@ class App extends Component {
         </div>
         <div>
           { this.state.results
-            ? <p>{this.state.results}</p>
-            : null
+            ? <ul style={{ listStyleType: 'none' }}>
+                {this.state.results.map(item=>
+                  <li>Tracking No:  {item.trackingNum}   -   Status:  {item.lastStatus}</li>
+                )}
+              </ul>
+            : <p>Nada!</p>
           }
         </div>
       </div>
