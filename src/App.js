@@ -20,12 +20,14 @@ class App extends Component {
       .then(data=>{
         console.log(`data returned: ${data}`);
         this.setState({results: JSON.parse(data)});
-        console.log('state shouldl be updated');
+        console.log('state should be updated');
       })
       .catch(err=>{console.log(err);})
   }
   
   render() {
+
+    const list = this.state.results;
     return (
       <div className="App">
         <header className="App-header">
@@ -39,31 +41,36 @@ class App extends Component {
             Get Tracking
           </Button>
         </div>
-        <div>
-          { this.state.results
-            ? <ul style={{ listStyleType: 'none' }}>
-                {this.state.results.map(item=>
-                  <li>Tracking No:  {item.trackingNum}   -   Status:  {item.lastStatus}</li>
-                )}
-              </ul>
-            : <p>Nada!</p>
-          }
-        </div>
+        {list
+         ? <Table 
+            list={list}/>
+         : <p>No Data To Display</p>}
       </div>
     );
   }
 }
 
-class Table extends Component {
-
-  render(){
-    return(
-      <div className="results-table">
-
-      </div>
-    )
-  }
-}
+const Table = ({ list }) =>
+  <div className="results-table">
+    <table>
+      <tbody>
+        <tr>
+          <th>Number</th>
+          <th>Status</th>
+        </tr>
+        {list.map(item=>{
+          <tr>
+            <td>
+              {item.trackingNum}
+            </td>
+            <td>
+              {item.lastStatus}
+            </td>
+          </tr>
+        })}
+      </tbody>
+    </table>
+  </div>
 
 const Button = ({ onClick, className, children }) => 
   <button

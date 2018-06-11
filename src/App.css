@@ -17,6 +17,27 @@
   font-size: large;
 }
 
+.results-table table {
+  margin: 0 auto;
+  border: 1px solid black;
+}
+
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 50%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+
 .fetch-btn {
   background: none;
   color: #222;
