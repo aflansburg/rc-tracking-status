@@ -3,10 +3,13 @@
 }
 
 .App-header {
-  background-color: #222;
-  height: 60px;
+  background-color: #303030;
+  height: 80px;
   padding: 20px;
-  color: white;
+  color: #dcdcdc;
+}
+.App-header img {
+  width: 25%;
 }
 
 .App-title {
@@ -38,6 +41,24 @@ tr:nth-child(even) {
   background-color: #dddddd;
 }
 
+.interactions {
+  display: inline-block;
+}
+
+.post-interactions {
+  float: right;
+  padding-left: 24px;
+}
+
+.csvlink {
+  text-decoration: none;
+  color: black;
+}
+.csvlink:hover {
+  text-decoration: none;
+  color: white;
+}
+
 .fetch-btn {
   background: none;
   color: #222;
@@ -45,14 +66,115 @@ tr:nth-child(even) {
   height: 40px;
   border: solid 1px #222;
   margin: 12px auto;
-  cursor: pointer;
+  cursor: pointer;   
 }
 .fetch-btn:hover{
-  background: rgb(0, 182, 228);
+  background: rgb(0, 167, 64);
   color: white;
 }
 
-@keyframes App-logo-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+.pulse {
+  cursor: pointer;
+  box-shadow: 0 0 0 rgba(204,169,44, 0.4);
+  animation: pulse 2s infinite;
 }
+.pulse:hover {
+  animation: pulsehover 0.5s infinite;
+}
+
+.csvlink-btn .pulse-after {
+  animation: none;
+}
+
+.csvlink-btn:hover {
+  text-decoration: none;
+  color: white;
+  animation: pulsehover 0.5s infinite;
+}
+
+@-webkit-keyframes pulse {
+  0% {
+      -webkit-box-shadow: 0 0 0 0 rgba(204,169,44, 0.4);
+  }
+  70% {
+      -webkit-box-shadow: 0 0 0 10px rgba(204,169,44, 0);
+  }
+  100% {
+      -webkit-box-shadow: 0 0 0 0 rgba(204,169,44, 0);
+  }
+}
+@keyframes pulse {
+  0% {
+      -moz-box-shadow: 0 0 0 0 rgba(255,0,0, 0.8);
+      box-shadow: 0 0 0 0 rgba(255,0,0, 0.6);
+  }
+  70% {
+      -moz-box-shadow: 0 0 0 10px rgba(255,0,0, 0);
+      box-shadow: 0 0 0 16px rgba(255,0,0, 0);
+  }
+  100% {
+      -moz-box-shadow: 0 0 0 0 rgba(255,0,0, 0);
+      box-shadow: 0 0 0 28px rgba(255,0,0, 0);
+  }
+}
+
+@-webkit-keyframes pulsehover {
+  0% {
+      -webkit-box-shadow: 0 0 0 0 rgba(0, 226, 68, 0.4);
+  }
+  70% {
+      -webkit-box-shadow: 0 0 0 10px rgba(44, 204, 79, 0);
+  }
+  100% {
+      -webkit-box-shadow: 0 0 0 0 rgba(204,169,44, 0);
+  }
+}
+@keyframes pulsehover {
+  0% {
+      -moz-box-shadow: 0 0 0 0 rgba(0, 255, 0, 0.8);
+      box-shadow: 0 0 0 0 rgba(30, 255, 0, 0.6);
+  }
+  70% {
+      -moz-box-shadow: 0 0 0 10px rgba(81, 255, 0, 0);
+      box-shadow: 0 0 0 16px rgba(0, 255, 85, 0);
+  }
+  100% {
+      -moz-box-shadow: 0 0 0 0 rgba(43, 255, 0, 0);
+      box-shadow: 0 0 0 28px rgba(30, 255, 0, 0);
+  }
+}
+
+@media only screen and (max-width: 1200px){
+  .App-header {
+    background-color: #303030;
+    height: 70px;
+    padding: 12px;
+    color: #dcdcdc;
+  }
+  .App-header img {
+    width: 45%;
+  }
+  .App-title {
+    font-size: 1.2em;
+  }
+}
+
+@media only screen and (max-width: 600px){
+  .App-header {
+    background-color: #303030;
+    height: 60px;
+    padding: 12px;
+    color: #dcdcdc;
+  }
+  .App-header img {
+    width: 80%;
+  }
+  .App-title {
+    font-size: 1.2em;
+  }
+}
+
+
+
+
+
