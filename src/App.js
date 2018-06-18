@@ -6,7 +6,7 @@ import 'react-table/react-table.css';
 import getTracking from './helpers/getTracking';
 import {CSVLink} from 'react-csv';
 import logo from './rc-logo.png';
-
+const scheduler = require('node-schedule');
 
 class App extends Component {
   constructor(props){
@@ -18,15 +18,20 @@ class App extends Component {
     }
 
     this.fetchTracking = this.fetchTracking.bind(this);
+      // refresh results
+    const job = scheduler.scheduleJob('3 * * * *', function(){
+      getTracking.get()
+        .then(data=>{
+          this.setState({results: JSON.parse(data)});
+        });
+    })
   }
 
   fetchTracking(event){
     this.setState({btnClicked: true});
     getTracking.get()
       .then(data=>{
-        console.dir(data);
         this.setState({results: JSON.parse(data)});
-        // console.log('state should be updated');
       })
       .catch(err=>{console.log(err);})
   }
@@ -47,7 +52,7 @@ class App extends Component {
             // className="fetch-btn pulse"
             className={this.state.btnClicked ? 'fetch-btn' : 'fetch-btn pulse' }
           >
-            Get Tracking
+            {this.state.btnClicked ? 'Refresh Data' : 'Get Tracking'}
           </Button>
           <div className="post-interactions">
           {list
@@ -60,7 +65,6 @@ class App extends Component {
             : null }
           </div>
         </div>
-        
          {list
           ? <ReactTable
           className='-striped -highlight'
@@ -78,6 +82,9 @@ class App extends Component {
 const columns = [{
   Header: 'Tracking No.',
   accessor: 'trackingNum',
+},{
+  Header: 'Order No.',
+  accessor: 'orderNum',
 }, {
   Header: 'Status',
   id: "lastStatus",
