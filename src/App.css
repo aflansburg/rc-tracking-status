@@ -20,6 +20,13 @@
   font-size: large;
 }
 
+header .beta-img {
+  margin-top: -54px;
+  margin-left: 6em;
+  width: 4%;
+  position: absolute;
+}
+
 .results-table table {
   margin: 0 auto;
   border: 1px solid black;
@@ -157,6 +164,12 @@ tr:nth-child(even) {
   .App-title {
     font-size: 1.2em;
   }
+  header .beta-img {
+    margin-top: -2.8em;
+    margin-left: 5em;
+    width: 9%;
+    position: absolute;
+  }
 }
 
 @media only screen and (max-width: 600px){
@@ -171,6 +184,12 @@ tr:nth-child(even) {
   }
   .App-title {
     font-size: 1.2em;
+  }
+  header .beta-img {
+    margin-top: -2.8em;
+    margin-left: 5em;
+    width: 15%;
+    position: absolute;
   }
 }
 

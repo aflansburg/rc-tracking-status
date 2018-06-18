@@ -6,6 +6,7 @@ import 'react-table/react-table.css';
 import getTracking from './helpers/getTracking';
 import {CSVLink} from 'react-csv';
 import logo from './rc-logo.png';
+import beta from './beta.png';
 const scheduler = require('node-schedule');
 
 class App extends Component {
@@ -18,12 +19,14 @@ class App extends Component {
     }
 
     this.fetchTracking = this.fetchTracking.bind(this);
-      // refresh results
-    const job = scheduler.scheduleJob('3 * * * *', function(){
+
+    const job = scheduler.scheduleJob('5 * * * *', ()=>{
       getTracking.get()
-        .then(data=>{
-          this.setState({results: JSON.parse(data)});
-        });
+      .then(data=>{
+        this.setState({results: JSON.parse(data)});
+        console.log('Results updated');
+      })
+      .catch(err=>{console.log(err);})
     })
   }
 
@@ -45,6 +48,7 @@ class App extends Component {
         <header className="App-header">
           <img src={logo} alt="Rough Country Logo"/>
           <h1 className="App-title">Tracking Status</h1>
+          <img src={beta} className="beta-img" alt="beta image"/>
         </header>
         <div className="interactions">
           <Button 
@@ -82,6 +86,7 @@ class App extends Component {
 const columns = [{
   Header: 'Tracking No.',
   accessor: 'trackingNum',
+  Cell: props => <a href={`https://www.fedex.com/apps/fedextrack/?tracknumbers=${props.value}`} target="_blank">{props.value}</a>,
 },{
   Header: 'Order No.',
   accessor: 'orderNum',
