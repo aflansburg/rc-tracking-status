@@ -20,7 +20,7 @@ class App extends Component {
 
     this.fetchTracking = this.fetchTracking.bind(this);
 
-    const job = scheduler.scheduleJob('5 * * * *', ()=>{
+    const job = scheduler.scheduleJob('12 * * * *', ()=>{
       getTracking.get()
       .then(data=>{
         this.setState({results: JSON.parse(data)});
@@ -102,17 +102,60 @@ const columns = [{
         : row.value && row.value.toLowerCase() === "shipment information sent to fedex" ? "#4286f4" : "#1ebc09",
     }}>{row.value}</div>
   ),
+  // filterMethod: (filter, row) => {
+  //   if (filter.value === "all"){
+  //     return true;
+  //   }
+  //   if (filter.value === "unscanned"){
+  //     if (row[filter.id])
+  //       return row[filter.id].toLowerCase() === "shipment information sent to fedex";
+  //   }
+  //   if (filter.value === "exception"){
+  //     if (row[filter.id])
+  //       return row[filter.id].toLowerCase() === "delivery exception" || row[filter.id].toLowerCase() === 'shipment exception';
+  //   }
+  // },
+  // Filter: ({ filter, onChange }) =>
+  //   <select
+  //     onChange={event => onChange(event.target.value)}
+  //     style={{ width: "100%"}}
+  //     value={filter ? filter.value : "all"}
+  //   >
+  //     <option value="all">Show All</option>
+  //     <option value="unscanned">Unscanned</option>
+  //     <option value="exception">Exception</option>
+  //   </select>
+}, {
+  Header: 'Scanned?',
+  id: "scanned",
+  accessor: d => {
+    if (d.lastStatus && !['delivery exception', 'shipment exception', 'shipment information sent to fedex'].includes(d.lastStatus.toLowerCase())
+        && Number(moment().date()) > Number(moment(d.shipDate).format("DD"))){
+        return '✔';
+    }
+    else {
+      return 'X';
+    }
+  },
+  Cell: row => (
+    <div style={{
+      color:
+        row.value && row.value === 'X'
+        ? "#ff3721" 
+        : "#4286f4"
+    }}>{row.value}</div>
+  ),
   filterMethod: (filter, row) => {
     if (filter.value === "all"){
       return true;
     }
-    if (filter.value === "unscanned"){
+    if (filter.value === "Yes"){
       if (row[filter.id])
-        return row[filter.id].toLowerCase() === "shipment information sent to fedex";
+        return row[filter.id] === "✔";
     }
-    if (filter.value === "exception"){
+    if (filter.value === "No"){
       if (row[filter.id])
-        return row[filter.id].toLowerCase() === "delivery exception" || row[filter.id].toLowerCase() === 'shipment exception';
+        return row[filter.id] === "X";
     }
   },
   Filter: ({ filter, onChange }) =>
@@ -122,10 +165,11 @@ const columns = [{
       value={filter ? filter.value : "all"}
     >
       <option value="all">Show All</option>
-      <option value="unscanned">Unscanned</option>
-      <option value="exception">Exception</option>
+      <option value="Yes">Yes</option>
+      <option value="No">No</option>
     </select>
-}, {
+},
+{
   id: 'shipDate',
   Header: 'Ship Date',
   accessor: d => {
@@ -133,7 +177,17 @@ const columns = [{
       return moment(d.shipDate)
         .local()
         .format("MM-DD-YYYY");
-  }, 
+  },
+}, {
+  id: 'actualShipDate',
+  Header: 'Date In Transit',
+  accessor: d => {
+    if (d.actualShipDate)
+      return moment(d.actualShipDate)
+        .local()
+        .format("MM-DD-YYYY");
+  }
+  // TO DO: add filter for date
 }, {
   id: 'reason',
   Header: 'Reason',
