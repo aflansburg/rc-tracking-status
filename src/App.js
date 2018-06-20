@@ -7,7 +7,9 @@ import getTracking from './helpers/getTracking';
 import {CSVLink} from 'react-csv';
 import logo from './rc-logo.png';
 import beta from './beta.png';
+import ReactLoading from 'react-loading';
 const scheduler = require('node-schedule');
+
 
 class App extends Component {
   constructor(props){
@@ -16,6 +18,7 @@ class App extends Component {
     this.state = {
       results: null,
       btnClicked: false,
+      isLoading: true,
     }
 
     this.fetchTracking = this.fetchTracking.bind(this);
@@ -30,11 +33,18 @@ class App extends Component {
     })
   }
 
+  componentWillMount(){
+    this.setState({isLoading: true});
+    this.fetchTracking();
+  }
+
   fetchTracking(event){
+    this.setState({isLoading: true});
     this.setState({btnClicked: true});
     getTracking.get()
       .then(data=>{
         this.setState({results: JSON.parse(data)});
+        this.setState({isLoading: false});
       })
       .catch(err=>{console.log(err);})
   }
@@ -42,9 +52,13 @@ class App extends Component {
   render() {
 
     const list = this.state.results;
-
     return (
       <div className="App">
+      {this.state.isLoading 
+        ? <div className="loading-container">
+            <ReactLoading type="spokes" color="#FF0F0F" className="loading-animation"/>
+          </div> 
+        : null}
         <header className="App-header">
           <img src={logo} alt="Rough Country Logo"/>
           <h1 className="App-title">Tracking Status</h1>
@@ -102,29 +116,54 @@ const columns = [{
         : row.value && row.value.toLowerCase() === "shipment information sent to fedex" ? "#4286f4" : "#1ebc09",
     }}>{row.value}</div>
   ),
-  // filterMethod: (filter, row) => {
-  //   if (filter.value === "all"){
-  //     return true;
-  //   }
-  //   if (filter.value === "unscanned"){
-  //     if (row[filter.id])
-  //       return row[filter.id].toLowerCase() === "shipment information sent to fedex";
-  //   }
-  //   if (filter.value === "exception"){
-  //     if (row[filter.id])
-  //       return row[filter.id].toLowerCase() === "delivery exception" || row[filter.id].toLowerCase() === 'shipment exception';
-  //   }
-  // },
-  // Filter: ({ filter, onChange }) =>
-  //   <select
-  //     onChange={event => onChange(event.target.value)}
-  //     style={{ width: "100%"}}
-  //     value={filter ? filter.value : "all"}
-  //   >
-  //     <option value="all">Show All</option>
-  //     <option value="unscanned">Unscanned</option>
-  //     <option value="exception">Exception</option>
-  //   </select>
+  filterMethod: (filter, row) => {
+    if (filter.value === "all"){
+      return true;
+    }
+    if (filter.value === "delivered"){
+      if (row[filter.id])
+        return row[filter.id].toLowerCase() === "delivered";
+    }
+    if (filter.value === "inTransit"){
+      if (row[filter.id])
+        return row[filter.id].toLowerCase() === "in transit";
+    }
+    if (filter.value === "arrived"){
+      if (row[filter.id])
+        return row[filter.id].toLowerCase() === "arrived at fedex location";
+    }
+    if (filter.value === "departed"){
+      if (row[filter.id])
+        return row[filter.id].toLowerCase() === "departed fedex location";
+    }
+    if (filter.value === "onVehicle"){
+      if (row[filter.id])
+        return row[filter.id].toLowerCase() === "on fedex vehicle for delivery";
+    }
+    if (filter.value === "infoSent"){
+      if (row[filter.id])
+        return row[filter.id].toLowerCase() === "shipment information sent to fedex";
+    }
+    if (filter.value === "exception"){
+      if (row[filter.id])
+        return row[filter.id].toLowerCase() === "delivery exception" || row[filter.id].toLowerCase() === 'shipment exception';
+    }
+  },
+  Filter: ({ filter, onChange }) =>
+    <select
+      onChange={event => onChange(event.target.value)}
+      style={{ width: "100%"}}
+      value={filter ? filter.value : "all"}
+    >
+      <option value="all">Show All</option>
+      <option value="delivered">Delivered</option>
+      <option value="inTransit">In Transit</option>
+      <option value="arrived">Arrived FedEx location</option>
+      <option value="departed">Departed FedEx location</option>
+      <option value="onVehicle">On FedEx vehicle</option>
+      <option value="exception">Exception</option>
+      <option value="infoSent">Shipment info sent</option>
+    </select>
 }, {
   Header: 'Scanned?',
   id: "scanned",
