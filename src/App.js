@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import './App.css';
 import ReactTable from "react-table";
+import DatePicker from "react-datepicker";
+import 'react-datepicker/dist/react-datepicker-cssmodules.css';
 import moment from 'moment';
 import 'react-table/react-table.css';
 import getTracking from './helpers/getTracking';
@@ -10,7 +12,6 @@ import beta from './beta.png';
 import ReactLoading from 'react-loading';
 const scheduler = require('node-schedule');
 
-
 class App extends Component {
   constructor(props){
     super(props);
@@ -19,9 +20,11 @@ class App extends Component {
       results: null,
       btnClicked: false,
       isLoading: true,
+      selectedDate: moment()
     }
 
     this.fetchTracking = this.fetchTracking.bind(this);
+    this.handleDateChange = this.handleDateChange.bind(this);
 
     const job = scheduler.scheduleJob('12 * * * *', ()=>{
       getTracking.get()
@@ -43,10 +46,17 @@ class App extends Component {
     this.setState({btnClicked: true});
     getTracking.get()
       .then(data=>{
-        this.setState({results: JSON.parse(data)});
+        data = JSON.parse(data);
+        // somehow dirty data is getting in - issue with fedex rest api project
+        data = data.filter(d => d.trackingNum !== null);
+        data = data.filter(d => d.trackingNum !== undefined);
+        this.setState({results: data});
         this.setState({isLoading: false});
       })
       .catch(err=>{console.log(err);})
+  }
+  handleDateChange(date){
+    this.setState({selectedDate: date})
   }
   
   render() {
@@ -87,7 +97,7 @@ class App extends Component {
           ? <ReactTable
           className='-striped -highlight'
           data={list}
-          columns={columns}
+          columns={columns(this)}
           filterable
           />
           : null
@@ -97,13 +107,22 @@ class App extends Component {
   }
 }
 
-const columns = [{
+const columns = (state) => [{
   Header: 'Tracking No.',
   accessor: 'trackingNum',
-  Cell: props => <a href={`https://www.fedex.com/apps/fedextrack/?tracknumbers=${props.value}`} target="_blank">{props.value}</a>,
+  Cell: props => (
+    // <a href={`https://www.fedex.com/apps/fedextrack/?tracknumbers=${props.value}`} target="_blank">{props.value}</a>,
+    <a href={
+      props.value && props.value.startsWith('4')
+      ?  `https://www.fedex.com/apps/fedextrack/?tracknumbers=${props.value}`
+      :  `https://tools.usps.com/go/TrackConfirmAction?tRef=fullpage&tLc=2&text28777=&tLabels=${props.value}%2C`
+    } target="_blank">{props.value}</a>
+  ),
+  width: 210,
 },{
   Header: 'Order No.',
   accessor: 'orderNum',
+  width: 100,
 }, {
   Header: 'Status',
   id: "lastStatus",
@@ -113,9 +132,10 @@ const columns = [{
       color:
         row.value && ["delivery exception", "shipment exception"].includes(row.value.toLowerCase())
         ? "#ff3721" 
-        : row.value && row.value.toLowerCase() === "shipment information sent to fedex" ? "#4286f4" : "#1ebc09",
+        : row && row.value.toLowerCase() === "shipment information sent to fedex" || row.value.toLowerCase() === "label created" ? "#4286f4" : "#1ebc09",
     }}>{row.value}</div>
   ),
+  width: 350,
   filterMethod: (filter, row) => {
     if (filter.value === "all"){
       return true;
@@ -142,12 +162,22 @@ const columns = [{
     }
     if (filter.value === "infoSent"){
       if (row[filter.id])
-        return row[filter.id].toLowerCase() === "shipment information sent to fedex";
+        return row[filter.id].toLowerCase() === "shipment information sent to fedex" || row[filter.id].toLowerCase() === "label created";
     }
     if (filter.value === "exception"){
       if (row[filter.id])
         return row[filter.id].toLowerCase() === "delivery exception" || row[filter.id].toLowerCase() === 'shipment exception';
     }
+    if (filter.value === "postOfficePickup"){
+      if (row[filter.id])
+        return row[filter.id].toLowerCase() === "at post office ready for pickup";
+    }
+    if (filter.value === "outForDelivery"){
+      if (row[filter.id])
+        return row[filter.id].toLowerCase() === "out for delivery";
+    }
+
+
   },
   Filter: ({ filter, onChange }) =>
     <select
@@ -162,20 +192,33 @@ const columns = [{
       <option value="departed">Departed FedEx location</option>
       <option value="onVehicle">On FedEx vehicle</option>
       <option value="exception">Exception</option>
-      <option value="infoSent">Shipment info sent</option>
+      <option value="infoSent">Label Created</option>
+      <option value="postOfficePickup">Ready for Pickup</option>
+      <option value="outForDelivery">Out for delivery</option>
     </select>
 }, {
   Header: 'Scanned?',
   id: "scanned",
   accessor: d => {
-    if (d.lastStatus && !['delivery exception', 'shipment exception', 'shipment information sent to fedex'].includes(d.lastStatus.toLowerCase())
-        && Number(moment().date()) > Number(moment(d.shipDate).format("DD"))){
-        return '✔';
+    if (d.lastStatus && ['delivery exception', 'shipment exception'].includes(d.lastStatus.toLowerCase())){
+        return 'X';
     }
-    else {
+    else if (d.lastStatus && ['shipment information sent to fedex', 
+        'no data at this time', 'label created'].includes(d.lastStatus.toLowerCase()) && !Number(moment().date()) < Number(moment(d.shipDate).format("DD"))){
       return 'X';
     }
+    else if (d.lastStatus && !['on fedex vehicle for delivery', 'arrived at fedex location', 'at fedex destination facility',
+                  'departed fedex location'].includes(d.lastStatus.toLowerCase())){
+        return '✔';
+    }
+    else if (!d.lastStatus){
+      return 'X';
+    }
+    else {
+      return '✔';
+    }
   },
+  width: 115,
   Cell: row => (
     <div style={{
       color:
@@ -217,6 +260,7 @@ const columns = [{
         .local()
         .format("MM-DD-YYYY");
   },
+  width: 100,
 }, {
   id: 'actualShipDate',
   Header: 'Date In Transit',
@@ -225,7 +269,8 @@ const columns = [{
       return moment(d.actualShipDate)
         .local()
         .format("MM-DD-YYYY");
-  }
+  },
+  width: 125,
   // TO DO: add filter for date
 }, {
   id: 'reason',
@@ -241,6 +286,5 @@ const Button = ({ onClick, className, children }) =>
     type="button">
     {children}
   </button>
-  
 
 export default App;
