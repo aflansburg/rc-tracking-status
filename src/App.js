@@ -10,6 +10,7 @@ import {CSVLink} from 'react-csv';
 import logo from './rc-logo.png';
 import beta from './beta.png';
 import ReactLoading from 'react-loading';
+import formatData from './helpers/formatData';
 const scheduler = require('node-schedule');
 
 class App extends Component {
@@ -20,7 +21,7 @@ class App extends Component {
       results: null,
       btnClicked: false,
       isLoading: true,
-      selectedDate: moment()
+      lastRefresh: '',
     }
 
     this.fetchTracking = this.fetchTracking.bind(this);
@@ -29,7 +30,8 @@ class App extends Component {
     const job = scheduler.scheduleJob('12 * * * *', ()=>{
       getTracking.get()
       .then(data=>{
-        this.setState({results: JSON.parse(data)});
+        data = formatData(data);
+        this.setState({results: data});
         console.log('Results updated');
       })
       .catch(err=>{console.log(err);})
@@ -44,12 +46,10 @@ class App extends Component {
   fetchTracking(event){
     this.setState({isLoading: true});
     this.setState({btnClicked: true});
+    this.setState({lastRefresh: moment().format('MMMM Do YYYY, h:mm:ss a')}),
     getTracking.get()
       .then(data=>{
-        data = JSON.parse(data);
-        // somehow dirty data is getting in - issue with fedex rest api project
-        data = data.filter(d => d.trackingNum !== null);
-        data = data.filter(d => d.trackingNum !== undefined);
+        data = formatData(data);
         this.setState({results: data});
         this.setState({isLoading: false});
       })
@@ -74,6 +74,10 @@ class App extends Component {
           <h1 className="App-title">Tracking Status</h1>
           <img src={beta} className="beta-img" alt="beta image"/>
         </header>
+        <div className="last-refresh">
+          <b>Last refresh:{"\t"}</b>
+          {this.state.lastRefresh}
+        </div>
         <div className="interactions">
           <Button 
             onClick={() => this.fetchTracking()}
@@ -132,7 +136,7 @@ const columns = (state) => [{
       color:
         row.value && ["delivery exception", "shipment exception"].includes(row.value.toLowerCase())
         ? "#ff3721" 
-        : row && row.value.toLowerCase() === "shipment information sent to fedex" || row.value.toLowerCase() === "label created" ? "#4286f4" : "#1ebc09",
+        : row.value && row.value.toLowerCase() === "shipment information sent to fedex" || row.value.toLowerCase() === "label created" ? "#4286f4" : "#1ebc09",
     }}>{row.value}</div>
   ),
   width: 350,
@@ -176,8 +180,10 @@ const columns = (state) => [{
       if (row[filter.id])
         return row[filter.id].toLowerCase() === "out for delivery";
     }
-
-
+    if (filter.value === 'arrivedPostOffice'){
+      if (row[filter.id])
+        return row[filter.id].toLowerCase() === "arrived at post office"
+    }
   },
   Filter: ({ filter, onChange }) =>
     <select
@@ -195,6 +201,7 @@ const columns = (state) => [{
       <option value="infoSent">Label Created</option>
       <option value="postOfficePickup">Ready for Pickup</option>
       <option value="outForDelivery">Out for delivery</option>
+      <option value="arrivedPostOffice">Arrived at Post Office</option>
     </select>
 }, {
   Header: 'Scanned?',

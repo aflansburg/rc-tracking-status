@@ -66,6 +66,12 @@ tr:nth-child(even) {
   color: white;
 }
 
+.last-refresh {
+  float: left;
+  position: absolute;
+  margin: 24px 24px;
+}
+
 .fetch-btn {
   background: none;
   color: #222;
@@ -193,6 +199,9 @@ tr:nth-child(even) {
     width: 5%;
     position: absolute;
   }
+  .last-refresh{
+    font-size: 10px;
+  }
 }
 
 @media only screen and (max-width: 600px){
@@ -213,6 +222,9 @@ tr:nth-child(even) {
     margin-left: 5em;
     width: 10%;
     position: absolute;
+  }
+  .last-refresh{
+    visibility: hidden;
   }
 }
 
