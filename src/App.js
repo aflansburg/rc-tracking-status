@@ -52,6 +52,10 @@ class App extends Component {
         data = formatData(data);
         this.setState({results: data});
         this.setState({isLoading: false});
+        data.forEach(dd=>{
+          if (dd.orderNum === '2294828')
+            console.log(JSON.stringify(dd));
+        })
       })
       .catch(err=>{console.log(err);})
   }
@@ -101,8 +105,13 @@ class App extends Component {
           ? <ReactTable
           className='-striped -highlight'
           data={list}
-          columns={columns(this)}
+          columns={columns()}
           filterable
+          // uncomment following for fixed scrolling header - causes issue
+          // defaultPageSize={20}
+          // style={{
+            // height: "800px" // This will force the table body to overflow and scroll, since there is not enough room
+          // }}
           />
           : null
          }
@@ -111,7 +120,7 @@ class App extends Component {
   }
 }
 
-const columns = (state) => [{
+const columns = () => [{
   Header: 'Tracking No.',
   accessor: 'trackingNum',
   Cell: props => (
@@ -123,6 +132,32 @@ const columns = (state) => [{
     } target="_blank">{props.value}</a>
   ),
   width: 210,
+  filterMethod: (filter, row) =>{
+    if (filter.value === "all"){
+      return true;
+    }
+    if (filter.value === "fedex"){
+      if (row[filter.id])
+        return row[filter.id].startsWith("4")
+    }
+    if (filter.value === "usps"){
+      if (row[filter.id])
+        return row[filter.id].startsWith("9")
+    }
+    if (filter.value === "ontrac"){
+      if (row[filter.id])
+        return row[filter.id].startsWith("C")
+    }
+  },
+  Filter: ({ filter, onChange }) =>
+  <select onChange={event=> onChange(event.target.value)}
+  style={{width: "100%"}}
+  value={filter ? filter.value : "all"}>
+    <option value="all">Show All</option>
+    <option value="fedex">FedEx</option>
+    <option value="usps">USPS</option>
+    <option value="ontrac">Ontrac</option>
+  </select>
 },{
   Header: 'Order No.',
   accessor: 'orderNum',
@@ -136,7 +171,7 @@ const columns = (state) => [{
       color:
         row.value && ["delivery exception", "shipment exception"].includes(row.value.toLowerCase())
         ? "#ff3721" 
-        : row.value && row.value.toLowerCase() === "shipment information sent to fedex" || row.value.toLowerCase() === "label created" ? "#4286f4" : "#1ebc09",
+        : row.value && ['label created', 'shipment information sent to fedex', 'pending'].includes(row.value.toLowerCase()) ? "#4286f4" : "#1ebc09",
     }}>{row.value}</div>
   ),
   width: 350,
@@ -166,7 +201,7 @@ const columns = (state) => [{
     }
     if (filter.value === "infoSent"){
       if (row[filter.id])
-        return row[filter.id].toLowerCase() === "shipment information sent to fedex" || row[filter.id].toLowerCase() === "label created";
+        return row[filter.id].toLowerCase() === "shipment information sent to fedex" || row[filter.id].toLowerCase() === "label created" || row[filter.id].toLowerCase() === "pending";
     }
     if (filter.value === "exception"){
       if (row[filter.id])
@@ -211,7 +246,7 @@ const columns = (state) => [{
         return 'X';
     }
     else if (d.lastStatus && ['shipment information sent to fedex', 
-        'no data at this time', 'label created'].includes(d.lastStatus.toLowerCase()) && !Number(moment().date()) < Number(moment(d.shipDate).format("DD"))){
+        'no data at this time', 'label created', 'pending'].includes(d.lastStatus.toLowerCase()) && d.shipDate <= moment().add(-1, 'days').local().format('M/D/YYYY')){
       return 'X';
     }
     else if (d.lastStatus && !['on fedex vehicle for delivery', 'arrived at fedex location', 'at fedex destination facility',
@@ -261,13 +296,41 @@ const columns = (state) => [{
 {
   id: 'shipDate',
   Header: 'Ship Date',
-  accessor: d => {
-    if (d.shipDate)
-      return moment(d.shipDate)
-        .local()
-        .format("MM-DD-YYYY");
+  accessor: 'shipDate',
+  width: 115,
+  filterMethod: (filter, row) => {
+    if (filter.value === "all"){
+      return true;
+    }
+    if (filter.value === moment().local().format('l')){
+      if (row[filter.id])
+        return row[filter.id] === moment().local().format('l');
+    }
+    if (filter.value === moment(moment().add(-1, 'days')).local().format('l')){
+      if (row[filter.id])
+        return row[filter.id] === moment(moment().add(-1, 'days')).local().format('l');
+    }
+    if (filter.value === moment(moment().add(-2, 'days')).local().format('l')){
+      if (row[filter.id])
+        return row[filter.id] === moment(moment().add(-2, 'days')).local().format('l');
+    }
+    if (filter.value === moment(moment().add(-3, 'days')).local().format('l')){
+      if (row[filter.id])
+        return row[filter.id] === moment(moment().add(-3, 'days')).local().format('l');
+    }
   },
-  width: 100,
+  Filter: ({ filter, onChange }) =>
+    <select
+      onChange={event => onChange(event.target.value)}
+      style={{ width: "100%"}}
+      value={filter ? filter.value : "all"}
+    >
+      <option value="all">Show All</option>
+      <option value={moment().format('l')}>{moment().format('l')}</option>
+      <option value={moment(moment().add(-1, 'days')).format('l')}>{moment(moment().add(-1, 'days')).format('l')}</option>
+      <option value={moment(moment().add(-2, 'days')).format('l')}>{moment(moment().add(-2, 'days')).format('l')}</option>
+      <option value={moment(moment().add(-3, 'days')).format('l')}>{moment(moment().add(-3, 'days')).format('l')}</option>
+    </select>
 }, {
   id: 'actualShipDate',
   Header: 'Date In Transit',

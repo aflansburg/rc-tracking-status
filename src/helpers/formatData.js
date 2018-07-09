@@ -1,3 +1,5 @@
+const moment = require('moment');
+
 export default function formatData(data){
     data = JSON.parse(data);
     data = data.filter(d => d.trackingNum !== null);
@@ -9,6 +11,11 @@ export default function formatData(data){
         else {
             d.lastLocation = ''
         }
+        // mongodb stores dates as GMT - this will do a +7 offset to hit CST (can add options for other timezones at a later date)
+        if (d.shipDate){
+            d.shipDate = String(moment(d.shipDate).utcOffset(420).format('M/D/YYYY'));
+        }
+            
     })
     return data;
 }
