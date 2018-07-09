@@ -170,7 +170,7 @@ const columns = () => [{
   Cell: row => (
     <div style={{
       color:
-        row.value && ["delivery exception", "shipment exception"].includes(row.value.toLowerCase())
+        row.value && ["delivery exception", "shipment exception", "will arrive late"].includes(row.value.toLowerCase())
         ? "#ff3721" 
         : row.value && ['label created', 'shipment information sent to fedex', 'pending'].includes(row.value.toLowerCase()) ? "#4286f4" : "#1ebc09",
     }}>{row.value}</div>
@@ -206,7 +206,7 @@ const columns = () => [{
     }
     if (filter.value === "exception"){
       if (row[filter.id])
-        return row[filter.id].toLowerCase() === "delivery exception" || row[filter.id].toLowerCase() === 'shipment exception';
+        return ["delivery exception", "shipment exception", "will arrive late"].includes(row[filter.id].toLowerCase());
     }
     if (filter.value === "postOfficePickup"){
       if (row[filter.id])
@@ -243,7 +243,7 @@ const columns = () => [{
   Header: 'Scanned?',
   id: "scanned",
   accessor: d => {
-    if (d.lastStatus && ['delivery exception', 'shipment exception'].includes(d.lastStatus.toLowerCase())){
+    if (d.lastStatus && ['delivery exception', 'shipment exception', 'will arrive late'].includes(d.lastStatus.toLowerCase())){
         return 'X';
     }
     else if (d.lastStatus && ['shipment information sent to fedex', 
