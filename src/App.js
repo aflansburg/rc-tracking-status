@@ -127,8 +127,9 @@ const columns = () => [{
     // <a href={`https://www.fedex.com/apps/fedextrack/?tracknumbers=${props.value}`} target="_blank">{props.value}</a>,
     <a href={
       props.value && props.value.startsWith('4')
-      ?  `https://www.fedex.com/apps/fedextrack/?tracknumbers=${props.value}`
-      :  `https://tools.usps.com/go/TrackConfirmAction?tRef=fullpage&tLc=2&text28777=&tLabels=${props.value}%2C`
+      ? `https://www.fedex.com/apps/fedextrack/?tracknumbers=${props.value}`
+      : props.value.startsWith('9') ? `https://tools.usps.com/go/TrackConfirmAction?tRef=fullpage&tLc=2&text28777=&tLabels=${props.value}%2C`
+      : `https://www.ontrac.com/trackingresults.asp?tracking_number=${props.value}`
     } target="_blank">{props.value}</a>
   ),
   width: 210,
