@@ -15,6 +15,9 @@ export default function formatData(data){
         if (d.shipDate){
             d.shipDate = String(moment(d.shipDate).utcOffset(420).format('M/D/YYYY'));
         }
+        if (d.shipmentCreated){
+            d.shipmentCreated = String(moment(d.shipmentCreated).utcOffset(-300).format('M/D/YYYY'));
+        }
             
     })
     return data;

@@ -105,6 +105,43 @@ tr:nth-child(even) {
   animation: pulsehover 0.5s infinite;
 }
 
+.version-interactions {
+  float: right;
+  margin: 0 auto;
+  color: #222;
+}
+.version-btn {
+  background: #0074d3;
+  color: #fff;
+  font-size: 10px;
+  width: 80px;
+  height: 20px;
+  border: solid 1px #222;
+  margin: 12px auto;
+  cursor: pointer;  
+}
+.version-btn:hover{
+  background: rgb(255, 86, 44);
+  color: white;
+}
+.version-notes{
+  font-size: 12px;
+  text-align: left;
+}
+.version-notes ul{
+  list-style-type: square;
+  list-style-position: inside;
+  border-bottom: 1px #303030;
+}
+.version-notes ul li:after{
+  content: "";
+    display: block;
+    height: 1px;
+    width: 100%;
+    margin: 8px auto 12px -20px;
+    background: #303030;
+}
+
 .loading-container {
   width: 100vw;
   height: 100vh;
@@ -189,6 +226,16 @@ tr:nth-child(even) {
     margin-left: 5em;
     width: 9%;
     position: absolute;
+  }
+  .version-btn {
+    background: #0074d3;
+    color: #fff;
+    font-size: 8px;
+    width: 80px;
+    height: 20px;
+    border: solid 1px #222;
+    margin: 12px auto;
+    cursor: pointer;  
   }
 }
 
