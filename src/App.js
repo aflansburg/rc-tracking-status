@@ -23,6 +23,8 @@ class App extends Component {
       btnClicked: false,
       isLoading: true,
       lastRefresh: '',
+      requestedOrder: false,
+      filtered: false,
     }
 
     this.fetchTracking = this.fetchTracking.bind(this);
@@ -39,10 +41,18 @@ class App extends Component {
       .catch(err=>{console.log(err);})
     })
   }
-
+  // will need to migrate with deprecation of this method to componentDidMount()
   componentWillMount(){
     this.setState({isLoading: true});
     this.fetchTracking();
+  }
+
+  componentDidMount(){
+    if (window.location.pathname){
+      let so = window.location.pathname;
+      so = so[0] === '/' ? so.substr(1) : so;
+      this.setState({requestedOrder: so, filtered: true});
+    }
   }
 
   fetchTracking(event){
@@ -127,6 +137,10 @@ class App extends Component {
           className='-striped -highlight'
           data={list}
           columns={columns()}
+          defaultFiltered={this.state.requestedOrder
+                    ? [{id: 'orderNum',
+                        value: this.state.requestedOrder}]
+                    : [{}]}
           filterable
           // uncomment following for fixed scrolling header - causes issue
           // defaultPageSize={20}
@@ -363,10 +377,6 @@ const columns = () => [{
       if (row[filter.id])
         return row[filter.id] === moment(moment().add(-4, 'days')).local().format('l');
     }
-    if (filter.value === "unshipped"){
-      // if (row[filter.id])
-        return row[filter.id] === null;
-    }
   },
   Filter: ({ filter, onChange }) =>
     <select
@@ -380,7 +390,6 @@ const columns = () => [{
       <option value={moment(moment().add(-2, 'days')).format('l')}>{moment(moment().add(-2, 'days')).format('l')}</option>
       <option value={moment(moment().add(-3, 'days')).format('l')}>{moment(moment().add(-3, 'days')).format('l')}</option>
       {/* <option value={moment(moment().add(-4, 'days')).format('l')}>{moment(moment().add(-4, 'days')).format('l')}</option> */}
-      <option value="unshipped">Unshipped</option>
     </select>
 }
 // ,{
