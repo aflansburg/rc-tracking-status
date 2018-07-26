@@ -42,10 +42,10 @@ class App extends Component {
     })
   }
   // will need to migrate with deprecation of this method to componentDidMount()
-  componentWillMount(){
-    this.setState({isLoading: true});
-    this.fetchTracking();
-  }
+  // componentWillMount(){
+  //   this.setState({isLoading: true});
+  //   this.fetchTracking();
+  // }
 
   componentDidMount(){
     if (window.location.pathname){
@@ -53,6 +53,7 @@ class App extends Component {
       so = so[0] === '/' ? so.substr(1) : so;
       this.setState({requestedOrder: so, filtered: true});
     }
+    this.fetchTracking();
   }
 
   fetchTracking(event){
@@ -84,8 +85,11 @@ class App extends Component {
       return(
         <div className="version-notes">
           <ul>
-            <li><b>7/24/18 14:08pm:</b> The backend API engine has been updated to include Warehouse 
+            <li><b>7/24/18 14:08:</b> The backend API engine has been updated to include Warehouse 
             location codes and implementation for better 'Reason' text search filtering.</li>
+            <li><b>7/26/18 07:54:</b> Date formatting corrected to show SAP dates based on CST, not UTC.</li>
+            <li><b>7/26/18 09:36:</b> There are currently issues with the USPS API - updates are being made to handle API errors.</li>
+            <li><b>7/26/18 14:20:</b> Db schema controller updated and USPS API issues resolved.</li>
           </ul>
         </div>
       )}
@@ -208,7 +212,7 @@ const columns = () => [{
         row.value && ["delivery exception", "shipment exception", "will arrive late", 
                       "exception: incorrect/incomplete address - unable to deliver"].includes(row.value.toLowerCase())
         ? "#ff3721" 
-        : row.value && ['label created', 'shipment information sent to fedex', 'pending', 'no status information',
+        : row.value && ['label created', 'shipment information sent to fedex', 'pending', 'no status information', 'no status information',
                         'shipping label created, usps awaiting item', 'no data at this time', 'no status'].includes(row.value.toLowerCase()) ? "#4286f4" : "#1ebc09",
     }}>{row.value}</div>
   ),
@@ -294,11 +298,15 @@ const columns = () => [{
          "exception: incorrect/incomplete address - unable to deliver"].includes(d.lastStatus.toLowerCase())){
         return 'X';
     }
-    else if (d.lastStatus && ['shipment information sent to fedex', 
-        'no data at this time', 'label created', 'pending', 'shipping label created, usps awaiting item', 'no status'].includes(d.lastStatus.toLowerCase()) && d.shipDate <= moment().add(-1, 'days').local().format('M/D/YYYY')){
+    else if (d.lastStatus && ['shipment information sent to fedex', 'no status information',
+        'no data at this time', 'label created', 'pending', 'shipping label created, usps awaiting item', 'no status'].includes(d.lastStatus.toLowerCase()) && d.shipmentCreated === moment().local().format('M/D/YYYY')){
+      return '';
+    }
+    else if (d.lastStatus && ['shipment information sent to fedex', 'no status information',
+        'no data at this time', 'label created', 'pending', 'shipping label created, usps awaiting item', 'no status'].includes(d.lastStatus.toLowerCase()) && d.shipmentCreated <= moment().add(-1, 'days').local().format('M/D/YYYY')){
       return 'X';
     }
-    else if (!d.shipDate){
+    else if (!d.shipmentCreated){
       return 'X';
     }
     else if (d.lastStatus && !['on fedex vehicle for delivery', 'arrived at fedex location', 'at fedex destination facility',
@@ -377,6 +385,14 @@ const columns = () => [{
       if (row[filter.id])
         return row[filter.id] === moment(moment().add(-4, 'days')).local().format('l');
     }
+    if (filter.value === moment(moment().add(-5, 'days')).local().format('l')){
+      if (row[filter.id])
+        return row[filter.id] === moment(moment().add(-5, 'days')).local().format('l');
+    }
+    if (filter.value === moment(moment().add(-6, 'days')).local().format('l')){
+      if (row[filter.id])
+        return row[filter.id] === moment(moment().add(-6, 'days')).local().format('l');
+    }
   },
   Filter: ({ filter, onChange }) =>
     <select
@@ -389,7 +405,9 @@ const columns = () => [{
       <option value={moment(moment().add(-1, 'days')).format('l')}>{moment(moment().add(-1, 'days')).format('l')}</option>
       <option value={moment(moment().add(-2, 'days')).format('l')}>{moment(moment().add(-2, 'days')).format('l')}</option>
       <option value={moment(moment().add(-3, 'days')).format('l')}>{moment(moment().add(-3, 'days')).format('l')}</option>
-      {/* <option value={moment(moment().add(-4, 'days')).format('l')}>{moment(moment().add(-4, 'days')).format('l')}</option> */}
+      <option value={moment(moment().add(-4, 'days')).format('l')}>{moment(moment().add(-4, 'days')).format('l')}</option>
+      <option value={moment(moment().add(-5, 'days')).format('l')}>{moment(moment().add(-5, 'days')).format('l')}</option>
+      <option value={moment(moment().add(-6, 'days')).format('l')}>{moment(moment().add(-6, 'days')).format('l')}</option>
     </select>
 }
 // ,{
@@ -440,18 +458,18 @@ const columns = () => [{
   id: 'warehouse',
   Header: 'Warehouse',
   accessor: 'warehouse',
-  width: 120,
+  width: 135,
   filterMethod: (filter, row) => {
     if (filter.value === "all"){
       return true;
     }
     if (filter.value === "W3"){
       if (row[filter.id])
-        return row[filter.id] === "W3";
+        return row[filter.id] === "W3 - Newbern";
     }
     if (filter.value === "W6"){
       if (row[filter.id])
-        return row[filter.id] === "W6";
+        return row[filter.id] === "W6 - Reno";
     }
   },
   Filter: ({ filter, onChange }) =>
@@ -461,8 +479,8 @@ const columns = () => [{
       value={filter ? filter.value : "all"}
     >
       <option value="all">Show All</option>
-      <option value="W3">W3</option>
-      <option value="W6">W6</option>
+      <option value="W3">W3 - Newbern</option>
+      <option value="W6">W6 - Reno</option>
     </select>
 }
 ,{
