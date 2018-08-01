@@ -41,11 +41,6 @@ class App extends Component {
       .catch(err=>{console.log(err);})
     })
   }
-  // will need to migrate with deprecation of this method to componentDidMount()
-  // componentWillMount(){
-  //   this.setState({isLoading: true});
-  //   this.fetchTracking();
-  // }
 
   componentDidMount(){
     if (window.location.pathname){
@@ -85,11 +80,8 @@ class App extends Component {
       return(
         <div className="version-notes">
           <ul>
-            <li><b>7/24/18 14:08:</b> The backend API engine has been updated to include Warehouse 
-            location codes and implementation for better 'Reason' text search filtering.</li>
-            <li><b>7/26/18 07:54:</b> Date formatting corrected to show SAP dates based on CST, not UTC.</li>
-            <li><b>7/26/18 09:36:</b> There are currently issues with the USPS API - updates are being made to handle API errors.</li>
             <li><b>7/26/18 14:20:</b> Db schema controller updated and USPS API issues resolved.</li>
+            <li><b>8/01/18 13:45:</b> Interface updated to properly filter derivations of "Delivered" status from USPS</li>
           </ul>
         </div>
       )}
@@ -210,7 +202,8 @@ const columns = () => [{
     <div style={{
       color:
         row.value && ["delivery exception", "shipment exception", "will arrive late", 
-                      "exception: incorrect/incomplete address - unable to deliver"].includes(row.value.toLowerCase())
+                      "exception: incorrect/incomplete address - unable to deliver", 
+                      'unable to deliver item, problem with address', 'return to sender processed'].includes(row.value.toLowerCase())
         ? "#ff3721" 
         : row.value && ['label created', 'shipment information sent to fedex', 'pending', 'no status information', 'no status information',
                         'shipping label created, usps awaiting item', 'no data at this time', 'no status'].includes(row.value.toLowerCase()) ? "#4286f4" : "#1ebc09",
@@ -223,7 +216,7 @@ const columns = () => [{
     }
     if (filter.value === "delivered"){
       if (row[filter.id])
-        return row[filter.id].toLowerCase() === "delivered";
+        return row[filter.id].toLowerCase() === "delivered" || row[filter.id].toLowerCase().includes("delivered,");
     }
     if (filter.value === "inTransit"){
       if (row[filter.id])
@@ -252,7 +245,8 @@ const columns = () => [{
     if (filter.value === "exception"){
       if (row[filter.id])
         return ["delivery exception", "shipment exception", "will arrive late", 
-                "exception: incorrect/incomplete address - unable to deliver"].includes(row[filter.id].toLowerCase());
+                "exception: incorrect/incomplete address - unable to deliver", 
+                "unable to deliver item, problem with address", "return to sender processed"].includes(row[filter.id].toLowerCase());
     }
     if (filter.value === "postOfficePickup"){
       if (row[filter.id])
@@ -295,7 +289,8 @@ const columns = () => [{
   accessor: d => {
     if (d.lastStatus && 
         ["delivery exception", "shipment exception", "will arrive late", 
-         "exception: incorrect/incomplete address - unable to deliver"].includes(d.lastStatus.toLowerCase())){
+         "exception: incorrect/incomplete address - unable to deliver",
+         "unable to deliver item, problem with address", "return to sender processed"].includes(d.lastStatus.toLowerCase())){
         return 'X';
     }
     else if (d.lastStatus && ['shipment information sent to fedex', 'no status information',
@@ -393,6 +388,22 @@ const columns = () => [{
       if (row[filter.id])
         return row[filter.id] === moment(moment().add(-6, 'days')).local().format('l');
     }
+    if (filter.value === moment(moment().add(-7, 'days')).local().format('l')){
+      if (row[filter.id])
+        return row[filter.id] === moment(moment().add(-7, 'days')).local().format('l');
+    }
+    if (filter.value === moment(moment().add(-8, 'days')).local().format('l')){
+      if (row[filter.id])
+        return row[filter.id] === moment(moment().add(-8, 'days')).local().format('l');
+    }
+    if (filter.value === moment(moment().add(-9, 'days')).local().format('l')){
+      if (row[filter.id])
+        return row[filter.id] === moment(moment().add(-9, 'days')).local().format('l');
+    }
+    if (filter.value === moment(moment().add(-10, 'days')).local().format('l')){
+      if (row[filter.id])
+        return row[filter.id] === moment(moment().add(-10, 'days')).local().format('l');
+    }
   },
   Filter: ({ filter, onChange }) =>
     <select
@@ -408,53 +419,13 @@ const columns = () => [{
       <option value={moment(moment().add(-4, 'days')).format('l')}>{moment(moment().add(-4, 'days')).format('l')}</option>
       <option value={moment(moment().add(-5, 'days')).format('l')}>{moment(moment().add(-5, 'days')).format('l')}</option>
       <option value={moment(moment().add(-6, 'days')).format('l')}>{moment(moment().add(-6, 'days')).format('l')}</option>
+      <option value={moment(moment().add(-7, 'days')).format('l')}>{moment(moment().add(-7, 'days')).format('l')}</option>
+      <option value={moment(moment().add(-8, 'days')).format('l')}>{moment(moment().add(-8, 'days')).format('l')}</option>
+      <option value={moment(moment().add(-9, 'days')).format('l')}>{moment(moment().add(-9, 'days')).format('l')}</option>
+      <option value={moment(moment().add(-10, 'days')).format('l')}>{moment(moment().add(-10, 'days')).format('l')}</option>
     </select>
-}
-// ,{
-//   id: 'shipmentCreated',
-//   Header: 'Created',
-//   accessor: 'shipmentCreated',
-//   width: 125,
-//   filterMethod: (filter, row) => {
-//     if (filter.value === "all"){
-//       return true;
-//     }
-//     if (filter.value === moment().local().format('l')){
-//       if (row[filter.id])
-//         return row[filter.id] === moment().local().format('l');
-//     }
-//     if (filter.value === moment(moment().add(-1, 'days')).local().format('l')){
-//       if (row[filter.id])
-//         return row[filter.id] === moment(moment().add(-1, 'days')).local().format('l');
-//     }
-//     if (filter.value === moment(moment().add(-2, 'days')).local().format('l')){
-//       if (row[filter.id])
-//         return row[filter.id] === moment(moment().add(-2, 'days')).local().format('l');
-//     }
-//     if (filter.value === moment(moment().add(-3, 'days')).local().format('l')){
-//       if (row[filter.id])
-//         return row[filter.id] === moment(moment().add(-3, 'days')).local().format('l');
-//     }
-//     if (filter.value === moment(moment().add(-4, 'days')).local().format('l')){
-//       if (row[filter.id])
-//         return row[filter.id] === moment(moment().add(-4, 'days')).local().format('l');
-//     }
-//   },
-//   Filter: ({ filter, onChange }) =>
-//     <select
-//       onChange={event => onChange(event.target.value)}
-//       style={{ width: "100%"}}
-//       value={filter ? filter.value : "all"}
-//     >
-//       <option value="all">Show All</option>
-//       <option value={moment().format('l')}>{moment().format('l')}</option>
-//       <option value={moment(moment().add(-1, 'days')).format('l')}>{moment(moment().add(-1, 'days')).format('l')}</option>
-//       <option value={moment(moment().add(-2, 'days')).format('l')}>{moment(moment().add(-2, 'days')).format('l')}</option>
-//       <option value={moment(moment().add(-3, 'days')).format('l')}>{moment(moment().add(-3, 'days')).format('l')}</option>
-//       <option value={moment(moment().add(-4, 'days')).format('l')}>{moment(moment().add(-4, 'days')).format('l')}</option>
-//     </select>
-// }
-,{
+},
+{
   id: 'warehouse',
   Header: 'Warehouse',
   accessor: 'warehouse',
