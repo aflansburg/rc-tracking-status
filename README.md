@@ -5,6 +5,6 @@ The intent of this application is to provide comprehensive and updated informati
 
 ## Requirements
 Requires the rc-tracking-api service to be running and the correct hostname or IP address to be provided to getTracking.js
-```const endpoint = 'http://192.168.1.251:3000/tracking';```
+The API server address and port should be specified in ```src/data/settings.json```
 
 ```npm install``` to install all dependencies
