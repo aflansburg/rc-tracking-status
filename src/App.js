@@ -82,6 +82,7 @@ class App extends Component {
           <ul>
             <li><b>7/26/18 14:20:</b> Db schema controller updated and USPS API issues resolved.</li>
             <li><b>8/01/18 13:45:</b> Interface updated to properly filter derivations of "Delivered" status from USPS</li>
+            <li><b>8/03/18 14:09:</b> Adjusted machine learning algorithm to accelerate singularity.</li>
           </ul>
         </div>
       )}
