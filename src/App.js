@@ -30,7 +30,8 @@ class App extends Component {
     this.fetchTracking = this.fetchTracking.bind(this);
     this.handleDateChange = this.handleDateChange.bind(this);
 
-    scheduler.scheduleJob('12 * * * *', ()=>{
+    // React table dataset refresh job (reloads tracking)
+    scheduler.scheduleJob('20 * * * *', ()=>{
       getTracking.get()
       .then(data=>{
         data = formatData(data);
