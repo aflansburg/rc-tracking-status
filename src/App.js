@@ -436,30 +436,6 @@ const columns = [{
       if (row[filter.id])
         return row[filter.id] === moment(moment().add(-13, 'days')).local().format('l');
     }
-    if (filter.value === moment(moment().add(-14, 'days')).local().format('l')){
-      if (row[filter.id])
-        return row[filter.id] === moment(moment().add(-14, 'days')).local().format('l');
-    }
-    if (filter.value === moment(moment().add(-15, 'days')).local().format('l')){
-      if (row[filter.id])
-        return row[filter.id] === moment(moment().add(-15, 'days')).local().format('l');
-    }
-    if (filter.value === moment(moment().add(-16, 'days')).local().format('l')){
-      if (row[filter.id])
-        return row[filter.id] === moment(moment().add(-16, 'days')).local().format('l');
-    }
-    if (filter.value === moment(moment().add(-17, 'days')).local().format('l')){
-      if (row[filter.id])
-        return row[filter.id] === moment(moment().add(-17, 'days')).local().format('l');
-    }
-    if (filter.value === moment(moment().add(-18, 'days')).local().format('l')){
-      if (row[filter.id])
-        return row[filter.id] === moment(moment().add(-18, 'days')).local().format('l');
-    }
-    if (filter.value === moment(moment().add(-19, 'days')).local().format('l')){
-      if (row[filter.id])
-        return row[filter.id] === moment(moment().add(-19, 'days')).local().format('l');
-    }
   },
   Filter: ({ filter, onChange }) =>
     <select
@@ -482,12 +458,6 @@ const columns = [{
       <option value={moment(moment().add(-11, 'days')).format('l')}>{moment(moment().add(-11, 'days')).format('l')}</option>
       <option value={moment(moment().add(-12, 'days')).format('l')}>{moment(moment().add(-12, 'days')).format('l')}</option>
       <option value={moment(moment().add(-13, 'days')).format('l')}>{moment(moment().add(-13, 'days')).format('l')}</option>
-      <option value={moment(moment().add(-14, 'days')).format('l')}>{moment(moment().add(-14, 'days')).format('l')}</option>
-      <option value={moment(moment().add(-15, 'days')).format('l')}>{moment(moment().add(-15, 'days')).format('l')}</option>
-      <option value={moment(moment().add(-16, 'days')).format('l')}>{moment(moment().add(-16, 'days')).format('l')}</option>
-      <option value={moment(moment().add(-17, 'days')).format('l')}>{moment(moment().add(-17, 'days')).format('l')}</option>
-      <option value={moment(moment().add(-18, 'days')).format('l')}>{moment(moment().add(-18, 'days')).format('l')}</option>
-      <option value={moment(moment().add(-19, 'days')).format('l')}>{moment(moment().add(-19, 'days')).format('l')}</option>
     </select>
 },
 {
