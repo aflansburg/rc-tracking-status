@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
+import { render } from 'react-dom';
 import './App.css';
-import ReactTable from "react-table";
+import ReactTable from 'react-table';
 import 'react-datepicker/dist/react-datepicker-cssmodules.css';
 import moment from 'moment';
 import 'react-table/react-table.css';
 import getTracking from './helpers/getTracking';
 import {CSVLink} from 'react-csv';
+import filterResults from './helpers/filterResults';
 import logo from './rc-logo.png';
 import beta from './beta.png';
 import ReactLoading from 'react-loading';
@@ -13,6 +15,24 @@ import formatData from './helpers/formatData';
 import Popup from "reactjs-popup";
 import matchSorter from 'match-sorter';
 const scheduler = require('node-schedule');
+
+function downloadCSV(data){
+    let csvContent = "trackingNum,orderNum,lastStatus,scanned,shipmentCreated,warehouse,reason\r\n";
+    data.forEach(item=>{
+      Object.keys(item).forEach(k=>{
+        if (!["_original", "_index", "_subRows", "_nestingLevel"].includes(k)){
+          csvContent += item[k] + ",";
+        }
+      })
+      csvContent += "\r\n";
+    })
+    let hiddenElement = document.createElement('a');
+    hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csvContent);
+    hiddenElement.target = '_blank';
+    hiddenElement.download = 'tracking_data.csv';
+    hiddenElement.click();
+ }
+
 
 class App extends Component {
   constructor(props){
@@ -29,6 +49,7 @@ class App extends Component {
 
     this.fetchTracking = this.fetchTracking.bind(this);
     this.handleDateChange = this.handleDateChange.bind(this);
+    // this.downloadFilteredData = this.downloadFilteredData.bind(this);
 
     // React table dataset refresh job (reloads tracking)
     scheduler.scheduleJob('20 * * * *', ()=>{
@@ -81,9 +102,7 @@ class App extends Component {
       return(
         <div className="version-notes">
           <ul>
-            <li><b>7/26/18 14:20:</b> Db schema controller updated and USPS API issues resolved.</li>
-            <li><b>8/01/18 13:45:</b> Interface updated to properly filter derivations of "Delivered" status from USPS</li>
-            <li><b>8/03/18 14:09:</b> Adjusted machine learning algorithm to accelerate singularity.</li>
+            <li><b>8/15/18 16:30:</b> Updated CSV download to include ONLY filtered results.</li>
           </ul>
         </div>
       )}
@@ -120,31 +139,27 @@ class App extends Component {
           </Button>
           <div className="post-interactions">
           {list
-          // need to set to download filtered list
-            ? <Button className="fetch-btn csvlink-btn pulse-after">
-                <CSVLink className="csvlink" filename={"tracking_data.csv"} data={list} target="_blank">
+          // need to set to download filtered list */}
+             ? <Button className="fetch-btn csvlink-btn pulse-after" onClick={() => downloadCSV(this.refs.table.getResolvedState().sortedData)}>
+                {/* <CSVLink className="csvlink" filename={"tracking_data.csv"} data={list} target="_blank">
                   Download CSV
-                </CSVLink>
+                </CSVLink> */}
+                Download CSV
               </Button>
             : null }
-            
           </div>
         </div>
          {list
           ? <ReactTable
+          ref="table"
           className='-striped -highlight'
           data={list}
-          columns={columns()}
-          defaultFiltered={this.state.requestedOrder
-                    ? [{id: 'orderNum',
-                        value: this.state.requestedOrder}]
-                    : [{}]}
+          columns={columns}
+          // defaultFiltered={this.state.requestedOrder
+          //           ? [{id: 'orderNum',
+          //               value: this.state.requestedOrder}]
+          //           : [{}]}
           filterable
-          // uncomment following for fixed scrolling header - causes issue
-          // defaultPageSize={20}
-          // style={{
-            // height: "800px" // This will force the table body to overflow and scroll, since there is not enough room
-          // }}
           />
           : null
          }
@@ -153,7 +168,7 @@ class App extends Component {
   }
 }
 
-const columns = () => [{
+const columns = [{
   Header: 'Tracking No.',
   accessor: 'trackingNum',
   Cell: props => (
