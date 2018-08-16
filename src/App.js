@@ -463,11 +463,11 @@ const columns = [{
       <option value={moment(moment().add(-8, 'days')).format('l')}>{moment(moment().add(-8, 'days')).format('l')}</option>
       <option value={moment(moment().add(-9, 'days')).format('l')}>{moment(moment().add(-9, 'days')).format('l')}</option>
       <option value={moment(moment().add(-10, 'days')).format('l')}>{moment(moment().add(-10, 'days')).format('l')}</option>
-      <option value={moment(moment().add(-10, 'days')).format('l')}>{moment(moment().add(-11, 'days')).format('l')}</option>
-      <option value={moment(moment().add(-10, 'days')).format('l')}>{moment(moment().add(-12, 'days')).format('l')}</option>
-      <option value={moment(moment().add(-10, 'days')).format('l')}>{moment(moment().add(-13, 'days')).format('l')}</option>
-      <option value={moment(moment().add(-10, 'days')).format('l')}>{moment(moment().add(-14, 'days')).format('l')}</option>
-      <option value={moment(moment().add(-10, 'days')).format('l')}>{moment(moment().add(-15, 'days')).format('l')}</option>
+      <option value={moment(moment().add(-11, 'days')).format('l')}>{moment(moment().add(-11, 'days')).format('l')}</option>
+      <option value={moment(moment().add(-12, 'days')).format('l')}>{moment(moment().add(-12, 'days')).format('l')}</option>
+      <option value={moment(moment().add(-13, 'days')).format('l')}>{moment(moment().add(-13, 'days')).format('l')}</option>
+      <option value={moment(moment().add(-14, 'days')).format('l')}>{moment(moment().add(-14, 'days')).format('l')}</option>
+      <option value={moment(moment().add(-15, 'days')).format('l')}>{moment(moment().add(-15, 'days')).format('l')}</option>
     </select>
 },
 {
