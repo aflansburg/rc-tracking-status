@@ -103,6 +103,7 @@ class App extends Component {
         <div className="version-notes">
           <ul>
             <li><b>8/15/18 16:30:</b> Updated CSV download to include ONLY filtered results.</li>
+            <li><b>8/16/18 08:15:</b> MongoDB updated to version 4.0.1</li>
           </ul>
         </div>
       )}
