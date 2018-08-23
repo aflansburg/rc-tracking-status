@@ -118,8 +118,8 @@ class App extends Component {
         : null}
         <header className="App-header">
           <img src={logo} alt="Rough Country Logo"/>
-          <h1 className="App-title">Tracking Status</h1>
-          <img src={beta} className="beta-img" alt="beta"/>
+          <h1 className="App-title">Tracking Status<img src={beta} className="beta-img" alt="beta"/></h1>
+          {/* <img src={beta} className="beta-img" alt="beta"/> */}
           <div className="version-interactions">
             <Popup trigger={<Button className="version-btn">Version Notes</Button>}
                    position="left center" contentStyle={modalStyle}>
@@ -131,10 +131,7 @@ class App extends Component {
           <b>Last refresh:{"\t"}</b>
           {this.state.lastRefresh}
         </div>
-        <div className="important-msg">
-          <b><font color="red">IMPORTANT:</font>{"\t"}</b>
-          This application may be unavailable until it is moved to a permanent server.
-        </div>
+        
         <div className="interactions">
           <Button 
             onClick={() => this.fetchTracking()}
@@ -154,6 +151,10 @@ class App extends Component {
               </Button>
             : null }
           </div>
+        </div>
+        <div className="important-msg">
+          <b><font color="red">IMPORTANT:</font>{"\t"}</b>
+          This application may be unavailable until it is moved to a permanent server.
         </div>
          {list
           ? <ReactTable

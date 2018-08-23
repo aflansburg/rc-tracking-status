@@ -21,9 +21,9 @@
 }
 
 header .beta-img {
-  margin-top: -54px;
-  margin-left: 6em;
-  width: 4%;
+  margin-top: -10px;
+  margin-left: .5em;
+  width: 80px;
   position: absolute;
 }
 
@@ -73,7 +73,7 @@ tr:nth-child(even) {
 }
 .important-msg {
   /* float: right; */
-  margin: 24px 0 0 24px;
+  padding-bottom: 12px;
 }
 
 .fetch-btn {
@@ -245,13 +245,16 @@ tr:nth-child(even) {
 
 @media only screen and (max-width: 1199px){
   header .beta-img {
-    margin-top: -2.8em;
-    margin-left: 5em;
-    width: 5%;
+    margin-top: -4px;
+    margin-left: .5em;
+    width: 60px;
     position: absolute;
   }
   .last-refresh{
-    font-size: 10px;
+    visibility: hidden;
+  }
+  .important-msg {
+    visibility: hidden;
   }
 }
 
@@ -269,12 +272,15 @@ tr:nth-child(even) {
     font-size: 1.2em;
   }
   header .beta-img {
-    margin-top: -2.8em;
-    margin-left: 5em;
-    width: 10%;
+    margin-top: -4px;
+    margin-left: .5em;
+    width: 60px;
     position: absolute;
   }
   .last-refresh{
+    visibility: hidden;
+  }
+  .important-msg {
     visibility: hidden;
   }
 }
