@@ -1,13 +1,10 @@
 import React, { Component } from 'react';
-import { render } from 'react-dom';
 import './App.css';
 import ReactTable from 'react-table';
 import 'react-datepicker/dist/react-datepicker-cssmodules.css';
 import moment from 'moment';
 import 'react-table/react-table.css';
 import getTracking from './helpers/getTracking';
-import {CSVLink} from 'react-csv';
-import filterResults from './helpers/filterResults';
 import logo from './rc-logo.png';
 import beta from './beta.png';
 import ReactLoading from 'react-loading';
@@ -17,20 +14,23 @@ import matchSorter from 'match-sorter';
 const scheduler = require('node-schedule');
 
 function downloadCSV(data){
-    let csvContent = "trackingNum,orderNum,lastStatus,scanned,shipmentCreated,warehouse,reason\r\n";
-    data.forEach(item=>{
-      Object.keys(item).forEach(k=>{
-        if (!["_original", "_index", "_subRows", "_nestingLevel"].includes(k)){
-          csvContent += item[k] + ",";
-        }
-      })
-      csvContent += "\r\n";
+  let hiddenElement = document.createElement('a');
+  document.body.appendChild(hiddenElement);
+  let csvContent = "trackingNum,orderNum,lastStatus,scanned,shipmentCreated,warehouse,reason\r\n";
+  data.forEach(item=>{
+    Object.keys(item).forEach(k=>{
+      if (!["_original", "_index", "_subRows", "_nestingLevel"].includes(k)){
+        csvContent += item[k] + ",";
+      }
     })
-    let hiddenElement = document.createElement('a');
-    hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csvContent);
-    hiddenElement.target = '_blank';
-    hiddenElement.download = 'tracking_data.csv';
-    hiddenElement.click();
+    csvContent += "\r\n";
+  })
+  let csv = new Blob([csvContent], { type: 'text/csv' });
+  hiddenElement.href = URL.createObjectURL(csv);
+  hiddenElement.target = '_blank';
+  hiddenElement.download = 'tracking_data.csv';
+  hiddenElement.click();
+  document.body.removeChild(hiddenElement);
  }
 
 
@@ -102,10 +102,9 @@ class App extends Component {
       return(
         <div className="version-notes">
           <ul>
-            <li><b>8/15/18 16:30:</b> Updated CSV download to include ONLY filtered results.</li>
-            <li><b>8/16/18 08:15:</b> MongoDB updated to version 4.0.1</li>
-            <li><b>NOW ACCEPTING DONATIONS TO MOVE THIS APPLICATION OFF OF MY PC TO A SERVER</b></li>
             <li><b>8/16/18 15:45:</b> Data now goes back 15 days</li>
+            <li><b>8/22/18 12:30</b> Major performance updates to cut down on memory usage.</li>
+            <li><b>This app may be frequently unavailable until it is moved to a permanent server.</b></li>
           </ul>
         </div>
       )}
@@ -132,10 +131,13 @@ class App extends Component {
           <b>Last refresh:{"\t"}</b>
           {this.state.lastRefresh}
         </div>
+        <div className="important-msg">
+          <b><font color="red">IMPORTANT:</font>{"\t"}</b>
+          This application may be unavailable until it is moved to a permanent server.
+        </div>
         <div className="interactions">
           <Button 
             onClick={() => this.fetchTracking()}
-            // className="fetch-btn pulse"
             className={this.state.btnClicked ? 'fetch-btn' : 'fetch-btn pulse' }
           >
             {this.state.btnClicked ? 'Refresh Data' : 'Get Tracking'}
@@ -143,10 +145,11 @@ class App extends Component {
           <div className="post-interactions">
           {list
           // need to set to download filtered list */}
-             ? <Button className="fetch-btn csvlink-btn pulse-after" onClick={() => downloadCSV(this.refs.table.getResolvedState().sortedData)}>
-                {/* <CSVLink className="csvlink" filename={"tracking_data.csv"} data={list} target="_blank">
-                  Download CSV
-                </CSVLink> */}
+             ? <Button className="fetch-btn csvlink-btn pulse-after" 
+                onClick={() => downloadCSV(
+                                  this.refs.table.getResolvedState().sortedData
+                                  ? this.refs.table.getResolvedState().sortedData
+                                  : list)}>
                 Download CSV
               </Button>
             : null }
@@ -158,15 +161,13 @@ class App extends Component {
           className='-striped -highlight'
           data={list}
           columns={columns}
-          // defaultFiltered={this.state.requestedOrder
-          //           ? [{id: 'orderNum',
-          //               value: this.state.requestedOrder}]
-          //           : [{}]}
           filterable
           />
           : null
          }
+         
       </div>
+      
     );
   }
 }

@@ -71,6 +71,10 @@ tr:nth-child(even) {
   position: absolute;
   margin: 24px 24px;
 }
+.important-msg {
+  /* float: right; */
+  margin: 24px 0 0 24px;
+}
 
 .fetch-btn {
   background: none;
