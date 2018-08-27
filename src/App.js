@@ -69,6 +69,7 @@ class App extends Component {
       let so = window.location.pathname;
       so = so[0] === '/' ? so.substr(1) : so;
       this.setState({requestedOrder: so, filtered: true});
+      console.log(so);
     }
     this.fetchTracking();
   }
@@ -162,6 +163,10 @@ class App extends Component {
           className='-striped -highlight'
           data={list}
           columns={columns}
+          defaultFiltered={this.state.requestedOrder
+            ? [{id: 'orderNum',
+                value: this.state.requestedOrder}]
+            : [{}]}
           filterable
           />
           : null
