@@ -13,7 +13,7 @@
     "react-datepicker": "^1.6.0",
     "react-dom": "^16.4.2",
     "react-loading": "^2.0.3",
-    "react-scripts": "1.1.4",
+    "react-scripts": "^1.1.5",
     "react-table": "^6.8.6",
     "reactjs-popup": "^1.2.0",
     "request": "^2.88.0",

@@ -6,7 +6,6 @@ import moment from 'moment';
 import 'react-table/react-table.css';
 import getTracking from './helpers/getTracking';
 import logo from './rc-logo.png';
-import beta from './beta.png';
 import ReactLoading from 'react-loading';
 import formatData from './helpers/formatData';
 import Popup from "reactjs-popup";
@@ -103,9 +102,7 @@ class App extends Component {
       return(
         <div className="version-notes">
           <ul>
-            <li><b>8/16/18 15:45:</b> Data now goes back 15 days</li>
-            <li><b>8/22/18 12:30</b> Major performance updates to cut down on memory usage.</li>
-            <li><b>This app may be frequently unavailable until it is moved to a permanent server.</b></li>
+          <li>08/28/2018 v1.0 Release - 1st Prod Build</li>
           </ul>
         </div>
       )}
@@ -119,8 +116,7 @@ class App extends Component {
         : null}
         <header className="App-header">
           <img src={logo} alt="Rough Country Logo"/>
-          <h1 className="App-title">Tracking Status<img src={beta} className="beta-img" alt="beta"/></h1>
-          {/* <img src={beta} className="beta-img" alt="beta"/> */}
+          <h1 className="App-title">Tracking Status</h1>
           <div className="version-interactions">
             <Popup trigger={<Button className="version-btn">Version Notes</Button>}
                    position="left center" contentStyle={modalStyle}>
@@ -154,8 +150,6 @@ class App extends Component {
           </div>
         </div>
         <div className="important-msg">
-          <b><font color="red">IMPORTANT:</font>{"\t"}</b>
-          This application may be unavailable until it is moved to a permanent server.
         </div>
          {list
           ? <ReactTable
