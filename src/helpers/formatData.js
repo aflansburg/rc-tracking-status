@@ -13,10 +13,10 @@ export default function formatData(data){
         }
         // mongodb stores dates as GMT - this will do a +7 offset to hit CST (can add options for other timezones at a later date)
         if (d.shipDate){
-            d.shipDate = String(moment(d.shipDate).utcOffset(300).format('M/D/YYYY'));
+            d.shipDate = String(moment(d.shipDate).utcOffset(-300).format('M/D/YYYY'));
         }
         if (d.shipmentCreated){
-            d.shipmentCreated = String(moment(d.shipmentCreated).utcOffset(300).format('M/D/YYYY'));
+            d.shipmentCreated = String(moment(d.shipmentCreated).utcOffset(-300).format('M/D/YYYY'));
         }
         if (d.warehouse === 'W3'){
             d.warehouse = 'W3 - Newbern';
