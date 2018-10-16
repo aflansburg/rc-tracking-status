@@ -8,3 +8,7 @@ Requires the rc-tracking-api service to be running and the correct hostname or I
 The API server address and port should be specified in ```src/data/settings.json```
 
 ```npm install``` to install all dependencies
+
+## Build
+1. Run ```npm run build``` to create build folder
+2. Copy web.config file to ```./build/``` directory (for IIS 6+ only)
