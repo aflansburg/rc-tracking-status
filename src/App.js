@@ -311,7 +311,7 @@ const columns = [{
     else if (!d.shipmentCreated){
       return 'X';
     }
-    else if (!d.lastStatus){
+    else if (!d.lastStatus || d.lastStatus === 'No data at this time'){
       return 'X';
     }
     else if (d.lastStatus.toLowerCase() === 'an error occurred in the request to ups.'){
