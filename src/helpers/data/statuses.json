@@ -1,0 +1,31 @@
+{
+    "delivered": ["delivered"],
+    "inTransit": ["in transit"],
+    "arrivedCarrier": ["arrived at usps regional origin facility", "arrived at usps regional origin facility",
+        "arrived at fedex location", "arrival scan", "destination scan", "origin scan", "arrived at post office"
+    ],
+    "departedCarrier": ["departed usps regional origin facility", "departed usps regional origin facility",
+        "departed fedex location", "departure scan"
+    ],
+    "onVehicle": ["on fedex vehicle for delivery", "loaded on delivery vehicle", "on vehicle for delivery"],
+    "labelCreated": ["label created", "shipment information sent to fedex", "pending", "no status information",
+        "shipping label created, usps awaiting item", "no status", "no data at this time"
+    ],
+    "exceptions": ["an error occurred in the request to ups", "held", "delivery exception", "shipment exception", "will arrive late",
+        "exception: incorrect/incomplete address - unable to deliver",
+        "unable to deliver item, problem with address", "return to sender processed",
+        "the receiver was not available for delivery. we'll make a second attempt the next business day.",
+        "exception: action required", "exception", "returned to sender", "returning to sender",
+        "returning to sender: on vehicle for delivery", "shipment information voided",
+        "due to operating conditions, your package may be delayed. / delivery will be rescheduled.",
+        "import c.o.d. (icod) charges are due for this shipment.", "the receiving business was closed at the time of the first delivery attempt. a second attempt will be made.", "we've received a request from the sender to update the delivery address.",
+        "an error occurred in the request to ups", "delivered, to original sender", "delivery attempted - no access to delivery location", "an error occurred in the request to ups."
+    ],
+    "outForDelivery": ["out for delivery today", "out for delivery"],
+    "readyForPickup": ["at post office ready for pickup", "we've received a request from the receiver to hold the package for pickup at a ups location."],
+    "forwarded": ["transferred to local post office for delivery", "at local post office", "forwarded to address"],
+    "customs": ["clearance completed", "clearance in progress", "import scan", "export scan",
+        "your package is being processed at the clearance agency.",
+        "your package is being processed at the clearance agency. / brokerage released the package. it will be processed through a clearing agency before final release to ups.", "your package was released by the customs agency."
+    ]
+}

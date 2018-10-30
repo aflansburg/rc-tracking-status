@@ -3,17 +3,24 @@
 }
 
 .App-header {
+  display: inline-block;
+  position: relative;
+  text-align: center;
   background-color: #303030;
-  height: 80px;
-  padding: 20px;
+  height: 48px;
   color: #dcdcdc;
+  width: 100%;
+  padding-top: 8px;
 }
 .App-header img {
-  width: 25%;
+  width: 22%;
+  float: left;
+  margin: 12px;
 }
-
 .App-title {
-  font-size: 1.5em;
+  margin: 8px 24%;
+  font-family: 'Roboto Condensed', sans-serif;
+  font-size: 1.8em;
 }
 
 .App-intro {
@@ -25,6 +32,9 @@ header .beta-img {
   margin-left: .5em;
   width: 80px;
   position: absolute;
+}
+.-highlight {
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
 .results-table table {
@@ -65,16 +75,23 @@ tr:nth-child(even) {
   text-decoration: none;
   color: white;
 }
-
+.first-line {
+    overflow: hidden;
+    white-space: nowrap;
+}
 .last-refresh {
   float: left;
   position: absolute;
   margin: 24px 24px;
 }
-.important-msg {
-  /* float: right; */
-  padding-bottom: 12px;
+#header-info {
+  border: 1px gray solid;
+  padding: 4px;
 }
+/* .important-msg {
+  float: right;
+  padding: 4px;
+} */
 
 .fetch-btn {
   background: none;
@@ -215,7 +232,7 @@ tr:nth-child(even) {
 @media only screen and (max-width: 1200px){
   .App-header {
     background-color: #303030;
-    height: 70px;
+    height: 40px;
     padding: 12px;
     color: #dcdcdc;
   }
@@ -238,7 +255,7 @@ tr:nth-child(even) {
     width: 80px;
     height: 20px;
     border: solid 1px #222;
-    margin: 12px auto;
+    margin: 12px 24px;
     cursor: pointer;  
   }
 }
@@ -277,10 +294,16 @@ tr:nth-child(even) {
     width: 60px;
     position: absolute;
   }
+  .version-interactions {
+    height: 0px;
+  }
   .last-refresh{
     visibility: hidden;
   }
   .important-msg {
+    visibility: hidden;
+  }
+  .version-btn {
     visibility: hidden;
   }
 }

@@ -10,6 +10,7 @@ import ReactLoading from 'react-loading';
 import formatData from './helpers/formatData';
 import Popup from "reactjs-popup";
 import matchSorter from 'match-sorter';
+import statuses from './helpers/data/statuses';
 const scheduler = require('node-schedule');
 
 function downloadCSV(data){
@@ -102,7 +103,7 @@ class App extends Component {
       return(
         <div className="version-notes">
           <ul>
-          <li>08/28/2018 v1.0 Release - 1st Prod Build</li>
+          <li>10/30/2018 - v2.0 -- Support for UPS added; removed deprecated index method from database client; migrated to new url parser</li>
           </ul>
         </div>
       )}
@@ -116,40 +117,38 @@ class App extends Component {
         : null}
         <header className="App-header">
           <img src={logo} alt="Rough Country Logo"/>
-          <h1 className="App-title">Tracking Status</h1>
-          <div className="version-interactions">
-            <Popup trigger={<Button className="version-btn">Version Notes</Button>}
-                   position="left center" contentStyle={modalStyle}>
+          <h1 className="App-title">Order Tracking Statuses</h1>
+        </header>
+        <div className="version-interactions">
+            <Popup trigger={<Button id="version-btn" className="version-btn">Version Notes</Button>}
+                    position="left center" contentStyle={modalStyle}>
               {updates}
             </Popup>
           </div>
-        </header>
-        <div className="last-refresh">
-          <b>Last refresh:{"\t"}</b>
-          {this.state.lastRefresh}
-        </div>
-        
-        <div className="interactions">
-          <Button 
-            onClick={() => this.fetchTracking()}
-            className={this.state.btnClicked ? 'fetch-btn' : 'fetch-btn pulse' }
-          >
-            {this.state.btnClicked ? 'Refresh Data' : 'Get Tracking'}
-          </Button>
-          <div className="post-interactions">
-          {list
-          // need to set to download filtered list */}
-             ? <Button className="fetch-btn csvlink-btn pulse-after" 
-                onClick={() => downloadCSV(
-                                  this.refs.table.getResolvedState().sortedData
-                                  ? this.refs.table.getResolvedState().sortedData
-                                  : list)}>
-                Download CSV
-              </Button>
-            : null }
+          <div className="last-refresh">
+            <b>Last refresh:{"\t"}</b>
+            {this.state.lastRefresh}
           </div>
-        </div>
-        <div className="important-msg">
+          <div className="interactions">
+            <Button 
+              onClick={() => this.fetchTracking()}
+              className={this.state.btnClicked ? 'fetch-btn' : 'fetch-btn pulse' }
+            >
+              {this.state.btnClicked ? 'Refresh Data' : 'Get Tracking'}
+            </Button>
+            <div className="post-interactions">
+            {list
+            // need to set to download filtered list */}
+              ? <Button className="fetch-btn csvlink-btn pulse-after" 
+                  onClick={() => downloadCSV(
+                                    this.refs.table.getResolvedState().sortedData
+                                    ? this.refs.table.getResolvedState().sortedData
+                                    : list)}>
+                  Download CSV
+                </Button>
+              : null }
+            </div>
+            
         </div>
          {list
           ? <ReactTable
@@ -181,7 +180,8 @@ const columns = [{
       props.value && props.value.startsWith('4')
       ? `https://www.fedex.com/apps/fedextrack/?tracknumbers=${props.value}`
       : props.value.startsWith('9') ? `https://tools.usps.com/go/TrackConfirmAction?tRef=fullpage&tLc=2&text28777=&tLabels=${props.value}%2C`
-      : `https://www.ontrac.com/trackingresults.asp?tracking_number=${props.value}`
+      : props.value.startsWith('C') ? `https://www.ontrac.com/trackingresults.asp?tracking_number=${props.value}` 
+      : `https://www.ups.com/track?loc=en_US&tracknum=${props.value}`
     } target="_blank">{props.value}</a>
   ),
   width: 210,
@@ -201,15 +201,20 @@ const columns = [{
       if (row[filter.id])
         return row[filter.id].startsWith("C")
     }
+    if (filter.value === "ups"){
+      if (row[filter.id])
+        return row[filter.id].startsWith("1Z");
+    }
   },
   Filter: ({ filter, onChange }) =>
   <select onChange={event=> onChange(event.target.value)}
   style={{width: "100%"}}
   value={filter ? filter.value : "all"}>
     <option value="all">Show All</option>
-    <option value="fedex">FedEx</option>
+    <option value="ups">UPS</option>
     <option value="usps">USPS</option>
     <option value="ontrac">Ontrac</option>
+    <option value="fedex">FedEx</option>
   </select>
 },{
   Header: 'Order No.',
@@ -222,12 +227,9 @@ const columns = [{
   Cell: row => (
     <div style={{
       color:
-        row.value && ["delivery exception", "shipment exception", "will arrive late", 
-                      "exception: incorrect/incomplete address - unable to deliver", 
-                      'unable to deliver item, problem with address', 'return to sender processed'].includes(row.value.toLowerCase())
+        row.value && statuses.exceptions.includes(row.value.toLowerCase())
         ? "#ff3721" 
-        : row.value && ['label created', 'shipment information sent to fedex', 'pending', 'no status information', 'no status information',
-                        'shipping label created, usps awaiting item', 'no data at this time', 'no status'].includes(row.value.toLowerCase()) ? "#4286f4" : "#1ebc09",
+        : row.value && statuses.labelCreated.includes(row.value.toLowerCase()) ? "#4286f4" : "#1ebc09",
     }}>{row.value}</div>
   ),
   width: 350,
@@ -237,53 +239,47 @@ const columns = [{
     }
     if (filter.value === "delivered"){
       if (row[filter.id])
-        return row[filter.id].toLowerCase() === "delivered" || row[filter.id].toLowerCase().includes("delivered,");
+        return statuses.delivered.includes(row[filter.id].toLowerCase());
     }
     if (filter.value === "inTransit"){
       if (row[filter.id])
-        return row[filter.id].toLowerCase() === "in transit";
+        return statuses.inTransit.includes(row[filter.id].toLowerCase());
     }
-    if (filter.value === "arrived"){
+    if (filter.value === "arrivedCarrier"){
       if (row[filter.id])
-        return ['arrived at usps regional origin facility', 'arrived at usps regional origin facility',
-                'arrived at fedex location'].includes(row[filter.id].toLowerCase());
+        return statuses.arrivedCarrier.includes(row[filter.id].toLowerCase());
     }
-    if (filter.value === "departed"){
+    if (filter.value === "departedCarrier"){
       if (row[filter.id])
-        return row[filter.id].toLowerCase() === "departed fedex location";
-        return ['departed usps regional origin facility', 'departed usps regional origin facility',
-                'departed fedex location'].includes(row[filter.id].toLowerCase());
+        return statuses.departedCarrier.includes(row[filter.id].toLowerCase());
     }
     if (filter.value === "onVehicle"){
       if (row[filter.id])
-        return row[filter.id].toLowerCase() === "on fedex vehicle for delivery";
+        return statuses.onVehicle.includes(row[filter.id].toLowerCase());
     }
-    if (filter.value === "infoSent"){
+    if (filter.value === "labelCreated"){
       if (row[filter.id])
-        return ['label created', 'shipment information sent to fedex', 'pending', 'no status information',
-                'shipping label created, usps awaiting item', 'no status'].includes(row[filter.id].toLowerCase());
+        return statuses.labelCreated.includes(row[filter.id].toLowerCase());
     }
     if (filter.value === "exception"){
       if (row[filter.id])
-        return ["delivery exception", "shipment exception", "will arrive late", 
-                "exception: incorrect/incomplete address - unable to deliver", 
-                "unable to deliver item, problem with address", "return to sender processed"].includes(row[filter.id].toLowerCase());
+        return statuses.exceptions.includes(row[filter.id].toLowerCase());
     }
-    if (filter.value === "postOfficePickup"){
+    if (filter.value === "readyForPickup"){
       if (row[filter.id])
-        return row[filter.id].toLowerCase() === "at post office ready for pickup";
+        return statuses.readyForPickup.includes(row[filter.id].toLowerCase());
     }
     if (filter.value === "outForDelivery"){
       if (row[filter.id])
-        return row[filter.id].toLowerCase() === "out for delivery";
-    }
-    if (filter.value === 'arrivedPostOffice'){
-      if (row[filter.id])
-        return row[filter.id].toLowerCase() === "arrived at post office"
+        return statuses.outForDelivery.includes(row[filter.id].toLowerCase());
     }
     if (filter.value === 'forwarded'){
       if (row[filter.id])
-        return row[filter.id].toLowerCase() === "forwarded to address"
+        return statuses.forwarded.includes(row[filter.id].toLowerCase());
+    }
+    if (filter.value === 'customs'){
+      if (row[filter.id])
+        return statuses.customs.includes(row[filter.id].toLowerCase());
     }
   },
   Filter: ({ filter, onChange }) =>
@@ -294,12 +290,13 @@ const columns = [{
     >
       <option value="all">Show All</option>
       <option value="exception">Exception</option>
-      <option value="infoSent">Label Created</option>
+      <option value="labelCreated">Label Created</option>
       <option value="inTransit">In Transit</option>
-      <option value="arrived">Arrived At Carrier Facility</option>
-      <option value="departed">Departed Carrier Facility</option>
-      <option value="onVehicle">On FedEx vehicle</option>
-      <option value="postOfficePickup">Ready for Pickup</option>
+      <option value="arrivedCarrier">Arrived At Carrier Facility</option>
+      <option value="departedCarrier">Departed Carrier Facility</option>
+      <option value="onVehicle">On Vehicle</option>
+      <option value="customs">Customs Clearance</option>
+      <option value="readyForPickup">Ready for Pickup</option>
       <option value="forwarded">Forwarded</option>
       <option value="outForDelivery">Out for delivery</option>
       <option value="delivered">Delivered</option>
@@ -308,29 +305,20 @@ const columns = [{
   Header: 'Scanned?',
   id: "scanned",
   accessor: d => {
-    if (d.lastStatus && 
-        ["delivery exception", "shipment exception", "will arrive late", 
-         "exception: incorrect/incomplete address - unable to deliver",
-         "unable to deliver item, problem with address", "return to sender processed"].includes(d.lastStatus.toLowerCase())){
-        return 'X';
-    }
-    else if (d.lastStatus && ['shipment information sent to fedex', 'no status information',
-        'no data at this time', 'label created', 'pending', 'shipping label created, usps awaiting item', 'no status'].includes(d.lastStatus.toLowerCase()) && d.shipmentCreated === moment().local().format('M/D/YYYY')){
-      return '';
-    }
-    else if (d.lastStatus && ['shipment information sent to fedex', 'no status information',
-        'no data at this time', 'label created', 'pending', 'shipping label created, usps awaiting item', 'no status'].includes(d.lastStatus.toLowerCase()) && d.shipmentCreated <= moment().add(-1, 'days').local().format('M/D/YYYY')){
+    if (d.lastStatus && statuses.labelCreated.includes(d.lastStatus.toLowerCase()) && d.shipmentCreated <= moment().add(-1, 'days').local().format('M/D/YYYY')){
       return 'X';
     }
     else if (!d.shipmentCreated){
       return 'X';
     }
-    else if (d.lastStatus && !['on fedex vehicle for delivery', 'arrived at fedex location', 'at fedex destination facility',
-                  'departed fedex location'].includes(d.lastStatus.toLowerCase())){
-        return '✔';
-    }
     else if (!d.lastStatus){
       return 'X';
+    }
+    else if (d.lastStatus.toLowerCase() === 'an error occurred in the request to ups.'){
+      return '?';
+    }
+    else if (!statuses.exceptions.includes(d.lastStatus.toLowerCase())) {
+      return '✔';
     }
     else {
       return '✔';
@@ -340,7 +328,7 @@ const columns = [{
   Cell: row => (
     <div style={{
       color:
-        row.value && row.value === 'X'
+        row.value && row.value === 'X' || row.value === '?'
         ? "#ff3721" 
         : "#4286f4"
     }}>{row.value}</div>
@@ -455,10 +443,10 @@ const columns = [{
       <option value={moment(moment().add(-7, 'days')).format('l')}>{moment(moment().add(-7, 'days')).format('l')}</option>
       <option value={moment(moment().add(-8, 'days')).format('l')}>{moment(moment().add(-8, 'days')).format('l')}</option>
       <option value={moment(moment().add(-9, 'days')).format('l')}>{moment(moment().add(-9, 'days')).format('l')}</option>
-      <option value={moment(moment().add(-10, 'days')).format('l')}>{moment(moment().add(-10, 'days')).format('l')}</option>
+      {/* <option value={moment(moment().add(-10, 'days')).format('l')}>{moment(moment().add(-10, 'days')).format('l')}</option>
       <option value={moment(moment().add(-11, 'days')).format('l')}>{moment(moment().add(-11, 'days')).format('l')}</option>
       <option value={moment(moment().add(-12, 'days')).format('l')}>{moment(moment().add(-12, 'days')).format('l')}</option>
-      <option value={moment(moment().add(-13, 'days')).format('l')}>{moment(moment().add(-13, 'days')).format('l')}</option>
+      <option value={moment(moment().add(-13, 'days')).format('l')}>{moment(moment().add(-13, 'days')).format('l')}</option> */}
     </select>
 },
 {
@@ -492,7 +480,7 @@ const columns = [{
 }
 ,{
   id: 'reason',
-  Header: 'Reason',
+  Header: 'Details',
   accessor: d => d.reason,
   filterMethod: (filter, rows) =>
     matchSorter(rows, filter.value, { threshold: matchSorter.rankings.CONTAINS, keys: ["reason"] }),
